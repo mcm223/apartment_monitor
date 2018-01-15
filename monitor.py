@@ -1,14 +1,16 @@
 import Adafruit_DHT
+import datetime
 import time
 from array import array
 from functools import reduce
 
 # Global variables
 sensor = Adafruit_DHT.AM2302
-todaysHigh = 0.0
-todaysLow = 0.0
+todaysHigh = None
+todaysLow = None
 avgTemp = 0.0
 avgHum = 0.0
+today = datetime.date.today()
 
 # GPIO Input
 # Really pin 7, but GPIO 4
@@ -21,17 +23,22 @@ humArr = array('f',[])
 def averageArray(input):
     sum = reduce((lambda x, y: x + y), input)
     avg = sum / len(input)
-    return avg
-
-# Get baseline temp for comparing today's high and low
-prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
-prevTemperature = ((prevTemperature * (9.0/5.0))+32.0)
-todaysHigh = prevTemperature
-todaysLow = prevTemperature
+    return avg   
 
 # Continuously get readings and keep five values in array for averaging to smooth outliers
-for x in range(0,10):
-    # Get reading
+for x in range(0,5):
+    # Check if day has turned over or need to initialize high/low values
+    if todaysHigh is None or todaysLow is None or today < datetime.date.today():
+        print('Resetting values!')
+        prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
+        prevTemperature = ((prevTemperature * (9.0/5.0))+32.0)
+        todaysHigh = prevTemperature
+        print(todaysHigh)
+        todaysLow = prevTemperature
+        print(todaysLow)
+        today = datetime.date.today()
+
+    # Get new reading
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 
     # Sensor may occasionally reject read
@@ -59,6 +66,7 @@ for x in range(0,10):
         avgHum = averageArray(humArr)
     else:
         print('Failed to get reading.')
+    print('The current date is: ' + str(today))
     print('The current temp is {0:0.1f}*. The current humidity is {1:0.1f}%.'.format(temperature, humidity))
     print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
     time.sleep(5)
