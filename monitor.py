@@ -1,6 +1,8 @@
 import Adafruit_DHT
 import datetime
 import time
+import json
+import picamera
 from array import array
 from functools import reduce
 
@@ -20,6 +22,12 @@ pin = 4
 tempArr = array('f',[])
 humArr = array('f',[])
 
+# Initialize camera
+c = picamera.PiCamera()
+c.led = False
+c.hflip = True
+c.vflip = True
+
 def averageArray(input):
     sum = reduce((lambda x, y: x + y), input)
     avg = sum / len(input)
@@ -29,13 +37,10 @@ def averageArray(input):
 for x in range(0,5):
     # Check if day has turned over or need to initialize high/low values
     if todaysHigh is None or todaysLow is None or today < datetime.date.today():
-        print('Resetting values!')
         prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
         prevTemperature = ((prevTemperature * (9.0/5.0))+32.0)
         todaysHigh = prevTemperature
-        print(todaysHigh)
         todaysLow = prevTemperature
-        print(todaysLow)
         today = datetime.date.today()
 
     # Get new reading
@@ -47,7 +52,7 @@ for x in range(0,5):
         # Convert to fahrenheit
         temperature = ((temperature * (9.0/5.0))+32.0)
 
-        # Compare values to keep a running high and low
+        # Compare values to keep a running high and low for the day
         if temperature > todaysHigh:
             todaysHigh = temperature
         if temperature < todaysLow:
@@ -66,9 +71,22 @@ for x in range(0,5):
         avgHum = averageArray(humArr)
     else:
         print('Failed to get reading.')
-    print('The current date is: ' + str(today))
-    print('The current temp is {0:0.1f}*. The current humidity is {1:0.1f}%.'.format(temperature, humidity))
-    print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
+    #print('The current date is: ' + str(today))
+    #print('The current temp is {0:0.1f}*. The current humidity is {1:0.1f}%.'.format(temperature, humidity))
+    #print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
+
+    # Write JSON to file
+    with open('var/www/html/output.txt','w') as outfile:
+        json.dump({'currentTemp': avgTemp,
+                   'currentHumidity': avgHum,
+                   'today': str(today),
+                   'todaysHigh': todaysHigh,
+                   'todaysLow': todaysLow}, outfile)
+
+    # Snap a pic
+    c.annotate_text = str(datetime.datetime.now())
+    c.capture('/var/www/html/images/latestPic.jpg')
+    
     time.sleep(5)
 
 
