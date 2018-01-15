@@ -1,3 +1,10 @@
+###
+# Environment Monitor
+# Checks temp/humdity reports image
+# for use in a local webserver.
+# Script is autorun from /etc/xdg/lxsession/LXDE-pi/autostart
+###
+
 import Adafruit_DHT
 import datetime
 import time
