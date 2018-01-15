@@ -23,6 +23,12 @@ def averageArray(input):
     avg = sum / len(input)
     return avg
 
+# Get baseline temp for comparing today's high and low
+prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
+prevTemperature = ((prevTemperature * (9.0/5.0))+32.0)
+todaysHigh = prevTemperature
+todaysLow = prevTemperature
+
 # Continuously get readings and keep five values in array for averaging to smooth outliers
 for x in range(0,10):
     # Get reading
@@ -33,6 +39,12 @@ for x in range(0,10):
 
         # Convert to fahrenheit
         temperature = ((temperature * (9.0/5.0))+32.0)
+
+        # Compare values to keep a running high and low
+        if temperature > todaysHigh:
+            todaysHigh = temperature
+        if temperature < todaysLow:
+            todaysLow = temperature
 
         # Process temperature
         if len(tempArr) == 5:
@@ -47,7 +59,9 @@ for x in range(0,10):
         avgHum = averageArray(humArr)
     else:
         print('Failed to get reading.')
+    print('The current temp is {0:0.1f}*. The current humidity is {1:0.1f}%.'.format(temperature, humidity))
+    print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
     time.sleep(5)
 
-# print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
+
 
