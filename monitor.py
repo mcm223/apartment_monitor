@@ -1,4 +1,6 @@
 import Adafruit_DHT
+import time
+from array import array
 
 # Adafruit variables
 sensor = Adafruit_DHT.AM2302
@@ -7,17 +9,29 @@ sensor = Adafruit_DHT.AM2302
 # Really pin 7, but GPIO 4
 pin = 4
 
-# Get reading
-humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+# Initialize arrays
+tempArr = array('f',[])
+humArr = array('f',[])
 
-# Convert temp to Fahrenheit
-if humidity is not None and temperature is not None:
-    temperature = ((temperature * (9.0/5.0))+32.0)
-else:
-    print('Failed to get reading.')
-    continue
+for x in range(0,10):
+    # Get reading
+    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+
+    # Convert temp to Fahrenheit
+    if humidity is not None and temperature is not None:
+        temperature = ((temperature * (9.0/5.0))+32.0)
+        if len(tempArr) == 5:
+            tempArr.pop(0)
+        tempArr.append(temperature)
+        if len(humArr) == 5:
+            humArr.pop(0)
+        humArr.append(humidity)
+        print(tempArr)
+        # print(humArr)
+    else:
+        print('Failed to get reading.')
+    time.sleep(5)
 
 
-print(humidity)
-print(temperature)
+# print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
 
