@@ -82,7 +82,7 @@ while True:
     #print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
 
     # Write JSON to file
-    with open('var/www/html/output.txt','w') as outfile:
+    with open('/var/www/html/output.txt','w') as outfile:
         json.dump({'currentTemp': avgTemp,
                    'currentHumidity': avgHum,
                    'today': str(today),
@@ -91,7 +91,7 @@ while True:
 
     # Snap a pic
     c.annotate_text = str(datetime.datetime.now())
-    c.capture('/var/www/html/images/latestPic.jpg')
+    c.capture('/var/www/html/images/latestPic.jpg', resize=(320,240))
 
     # Capture once a minute
     time.sleep(60)
