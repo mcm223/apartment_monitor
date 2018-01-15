@@ -24,7 +24,6 @@ humArr = array('f',[])
 
 # Initialize camera
 c = picamera.PiCamera()
-c.led = False
 c.hflip = True
 c.vflip = True
 
