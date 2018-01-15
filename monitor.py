@@ -91,7 +91,7 @@ while True:
 
     # Snap a pic
     c.annotate_text = str(datetime.datetime.now())
-    c.capture('/var/www/html/images/latestPic.jpg', resize=(320,240))
+    c.capture('/var/www/html/images/latestPic.jpg', resize=(960,540))
 
     # Capture once a minute
     time.sleep(60)
