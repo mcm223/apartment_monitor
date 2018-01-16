@@ -83,7 +83,7 @@ for x in range(0,3):
     #print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
 
     # Write JSON to file
-    with open('/var/www/html/output.json','w') as outfile:
+    with open('/var/www/html/js/output.json','w') as outfile:
         json.dump({'currentTemp': avgTemp,
                    'currentHumidity': avgHum,
                    'today': str(today),
