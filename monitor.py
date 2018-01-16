@@ -3,6 +3,7 @@
 # Checks temp/humdity reports image
 # for use in a local webserver.
 # Script is autorun from /etc/xdg/lxsession/LXDE-pi/autostart
+# sudo /usr/bin/python /home/pi/apartment_monitor/monitor.py
 ###
 
 import Adafruit_DHT
@@ -40,7 +41,7 @@ def averageArray(input):
     return avg   
 
 # Continuously get readings and keep five values in array for averaging to smooth outliers
-while True:
+for x in range(0,3):
     # Check if day has turned over or need to initialize high/low values
     if todaysHigh is None or todaysLow is None or today < datetime.date.today():
         prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
@@ -82,7 +83,7 @@ while True:
     #print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
 
     # Write JSON to file
-    with open('/var/www/html/output.txt','w') as outfile:
+    with open('/var/www/html/output.json','w') as outfile:
         json.dump({'currentTemp': avgTemp,
                    'currentHumidity': avgHum,
                    'today': str(today),
