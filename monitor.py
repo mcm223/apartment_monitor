@@ -41,7 +41,7 @@ def averageArray(input):
     return avg   
 
 # Continuously get readings and keep five values in array for averaging to smooth outliers
-for x in range(0,3):
+for x in range(0,5):
     # Check if day has turned over or need to initialize high/low values
     if todaysHigh is None or todaysLow is None or today < datetime.date.today():
         prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
@@ -95,7 +95,7 @@ for x in range(0,3):
     c.capture('/var/www/html/images/latestPic.jpg', resize=(960,540))
 
     # Capture once a minute
-    time.sleep(60)
+    time.sleep(10)
 
 
 
