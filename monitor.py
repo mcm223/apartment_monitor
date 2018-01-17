@@ -11,6 +11,7 @@ import datetime
 import time
 import json
 import picamera
+import boto3
 from array import array
 from functools import reduce
 
@@ -35,13 +36,22 @@ c = picamera.PiCamera()
 c.hflip = True
 c.vflip = True
 
+# Initialize S3 Session
+# Credentials stored as env variables locally
+s3 = boto3.resource('s3')
+bucket = 'apt-monitor'
+
 def averageArray(input):
     sum = reduce((lambda x, y: x + y), input)
     avg = sum / len(input)
     return avg   
 
+def uploadFileToS3(path,contentType):
+    data = open(path,'rb')
+    s3.Bucket(bucket).put_object(Key=path, Body=data, ContentType=contentType, ACL='public-read')
+
 # Continuously get readings and keep five values in array for averaging to smooth outliers
-for x in range(0,1000):
+for x in range(0,5):
     # Check if day has turned over or need to initialize high/low values
     if todaysHigh is None or todaysLow is None or today < datetime.date.today():
         prevHumidity, prevTemperature = Adafruit_DHT.read_retry(sensor, pin)
@@ -94,8 +104,12 @@ for x in range(0,1000):
     c.annotate_text = str(datetime.datetime.now())
     c.capture('/var/www/html/images/latestPic.jpg', resize=(960,540))
 
+    # Upload to S3
+    uploadFileToS3('/var/www/html/js/output.json','application/json')
+    uploadFileToS3('/var/www/html/images/latestPic.jpg','image/jpeg')
+
     # Capture once a minute
-    time.sleep(60)
+    time.sleep(10)
 
 
 
