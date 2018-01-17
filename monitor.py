@@ -41,6 +41,10 @@ c.vflip = True
 s3 = boto3.resource('s3')
 bucket = 'apt-monitor'
 
+# Filepaths for saves
+jsonPath = '/home/pi/apartment-monitor/output.json'
+imagePath = '/home/pi/apartment-monitor/latestPic.jpg'
+
 def averageArray(input):
     sum = reduce((lambda x, y: x + y), input)
     avg = sum / len(input)
@@ -93,7 +97,7 @@ for x in range(0,5):
     #print('Todays High is {0:0.1f}*. Todays Low is {1:0.1f}*.'.format(todaysHigh, todaysLow))
 
     # Write JSON to file
-    with open('/var/www/html/js/output.json','w') as outfile:
+    with open(jsonPath,'w') as outfile:
         json.dump({'currentTemp': avgTemp,
                    'currentHumidity': avgHum,
                    'today': str(today),
@@ -102,11 +106,11 @@ for x in range(0,5):
 
     # Snap a pic
     c.annotate_text = str(datetime.datetime.now())
-    c.capture('/var/www/html/images/latestPic.jpg', resize=(960,540))
+    c.capture(imagePath, resize=(960,540))
 
     # Upload to S3
-    uploadFileToS3('/var/www/html/js/output.json','application/json')
-    uploadFileToS3('/var/www/html/images/latestPic.jpg','image/jpeg')
+    uploadFileToS3(jsonPath,'application/json')
+    uploadFileToS3(imagPath,'image/jpeg')
 
     # Capture once a minute
     time.sleep(10)
